@@ -4,6 +4,7 @@ const categorySelect = document.getElementById('category');
 const countrySelect = document.getElementById('country');
 const searchBtn = document.getElementById('searchBtn');
 const searchQueryInput = document.getElementById('searchQuery');
+const url = `https://newsapi.org/v2/top-headlines?country=${country}&apiKey=${apiKey}&page=${page}&pageSize=5`;
 let currentPage = 1;
 let currentQuery = '';
 let selectedCategory = 'general';
