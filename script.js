@@ -1,18 +1,18 @@
 const apiKey = 'e07e2a7573224afebe0a5768b785b12b';
-const newsContainer = document.getElementById('newsContainer');
+const newsContainer = document.getElementById('news-grid');
 const categorySelect = document.getElementById('category');
 const countrySelect = document.getElementById('country');
-const searchBtn = document.getElementById('searchBtn');
-const searchQueryInput = document.getElementById('searchQuery');
+const searchBtn = document.getElementById('search-btn');
+const searchQueryInput = document.getElementById('search');
 const url = `https://newsapi.org/v2/top-headlines?country=${country}&apiKey=${apiKey}&page=${page}&pageSize=5`;
+
 let currentPage = 1;
 let currentQuery = '';
-let selectedCategory = 'general';
-let selectedCountry = 'us'; // Default country
 
-// Fetch news based on category, country, and page
-async function fetchNews(category, country, page = 1) {
-    const url = `https://newsapi.org/v2/top-headlines?category=${category}&country=${country}&apiKey=${apiKey}&page=${page}&pageSize=5`;
+// Fetch news based on category and country
+async function fetchLatestNews(page = 1) {
+    const country = countrySelect.value; // Get selected country
+    const url = `https://newsapi.org/v2/top-headlines?country=${country}&apiKey=${apiKey}&page=${page}&pageSize=5`;
     const response = await fetch(url);
     const data = await response.json();
     return data.articles;
@@ -28,6 +28,7 @@ async function searchNews(query, page = 1) {
 
 // Display news articles
 function displayNews(articles) {
+    newsContainer.innerHTML = ''; // Clear previous news
     articles.forEach(article => {
         const newsArticle = document.createElement('article');
         newsArticle.innerHTML = `
@@ -41,31 +42,21 @@ function displayNews(articles) {
 }
 
 // Load more news when the button is clicked
-document.getElementById('loadMoreBtn').addEventListener('click', async () => {
+document.getElementById('load-more').addEventListener('click', async () => {
     currentPage++;
     let articles;
     if (currentQuery) {
         articles = await searchNews(currentQuery, currentPage);
     } else {
-        articles = await fetchNews(selectedCategory, selectedCountry, currentPage);
+        articles = await fetchLatestNews(currentPage);
     }
     displayNews(articles);
 });
 
-// Fetch news on category or country change
-categorySelect.addEventListener('change', async () => {
-    selectedCategory = categorySelect.value;
-    newsContainer.innerHTML = ''; // Clear previous news
-    currentPage = 1; // Reset page count
-    const articles = await fetchNews(selectedCategory, selectedCountry, currentPage);
-    displayNews(articles);
-});
-
+// Fetch news on country change
 countrySelect.addEventListener('change', async () => {
-    selectedCountry = countrySelect.value;
-    newsContainer.innerHTML = ''; // Clear previous news
     currentPage = 1; // Reset page count
-    const articles = await fetchNews(selectedCategory, selectedCountry, currentPage);
+    const articles = await fetchLatestNews(currentPage);
     displayNews(articles);
 });
 
@@ -74,15 +65,14 @@ searchBtn.addEventListener('click', async () => {
     const query = searchQueryInput.value.trim();
     if (query) {
         currentQuery = query;
-        newsContainer.innerHTML = ''; // Clear previous news
         currentPage = 1; // Reset page count
         const articles = await searchNews(query, currentPage);
         displayNews(articles);
     }
 });
 
-// Initial news load (General Category, US as default country)
+// Initial news load (Latest News)
 window.addEventListener('DOMContentLoaded', async () => {
-    const articles = await fetchNews(selectedCategory, selectedCountry, currentPage);
+    const articles = await fetchLatestNews(currentPage);
     displayNews(articles);
 });
